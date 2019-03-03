@@ -1,0 +1,13 @@
+
+
+{% extends "base.html" %}
+   {% block title %}Read{% endblock %}
+   {% block content %}
+    <form action="/update/{{mountain.id}}" method='POST'>
+        Name: <input type="text" name="name"value='{{mountain.name}}'><br>
+        Height: <input type="number" name="height"value='{{mountain.height}}'><br>
+        Town: <input type="text" name="town" value='{{mountain.town}}'><br>
+
+        <input type="submit">
+    </form>
+    {% endblock %}

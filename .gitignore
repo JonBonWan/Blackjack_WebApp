@@ -1,0 +1,9 @@
+*.exe
+
+*.com
+
+venv/
+
+.idea/
+
+__pycache__/

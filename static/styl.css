@@ -1,0 +1,66 @@
+nav{
+    background-color: lightskyblue;
+}
+
+nav ul{
+    padding: 20px;
+    margin: 10px;
+    list-style-type: none;
+}
+
+nav li{
+    display: inline;
+    padding: 20px;
+    border-right: solid darkslategray thin;
+    color: black;
+
+
+}
+section{
+    float: left;
+}
+h1{
+    color: darkorchid;
+}
+
+body{
+    color: black;
+    background-color: deepskyblue;
+
+}
+
+nav ul li a:hover{
+    background-color: aqua;
+    color: mediumslateblue;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border: 1px solid black;
+}
+
+table{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+a:link{
+    text-decoration: none;
+    color: rebeccapurple;
+}
+
+a:visited{
+    text-decoration: none;
+    color: rebeccapurple;
+}
+
+a:hover{
+    text-decoration: underline;
+    color: darkorchid;
+}
+
+a:active{
+    text-decoration: underline;
+    color: rebeccapurple;
+}

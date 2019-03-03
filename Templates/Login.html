@@ -1,0 +1,16 @@
+
+
+
+{% extends "base.html" %}
+   {% block title %}Read{% endblock %}
+   {% block content %}
+
+    <form action="/login" method='POST'>
+        User name:<input type="text" name="username">
+        Password: <input type="password" name="password">
+        <input type="submit">
+    </form>
+        {% if notuser %}
+            {{notuser}}
+        {% endif %}
+    {% endblock %}

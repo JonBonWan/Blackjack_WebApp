@@ -1,0 +1,23 @@
+   {% extends "base.html" %}
+   {% block title %}Read{% endblock %}
+   {% block content %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th> Height</th>
+            <th>Towns</th>
+        </tr>
+
+
+        {% for mountain in mount %}
+        <tr>
+        <td>{{mountain.name}}</td>
+        <td>{{mountain.height}}</td>
+        <td>{{mountain.town}}</td>
+        <td><a href="/update/{{mountain.id}}">Update</a></td>
+        <td><a href="/delete/{{mountain.id}}">Delete</a></td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    {% endblock %}
