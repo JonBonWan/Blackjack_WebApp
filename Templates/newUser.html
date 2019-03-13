@@ -4,10 +4,10 @@
 {% extends "base.html" %}
    {% block title %}New User{% endblock %}
    {% block content %}
-        <form action="/newUser" method='POST'>
+       <form action="/newUser" method='POST'>
             User Name: <input type="text" name="username"><br>
             Password: <input type="password" name="password"><br>
-            Nickname: <input type="text" name="name"><br>
+            Balance: <input type="number" name="balance"><br>
             <input type="submit">
         </form>
     {% endblock %}

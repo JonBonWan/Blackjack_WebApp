@@ -1,19 +1,20 @@
    {% extends "base.html" %}
    {% block title %}Read{% endblock %}
    {% block content %}
-
-
-   <!--{ <table>
+    <body>
+        <h1>Table is here</h1>
+        <img src = "/static/BlackJackTable.jpg">
+        <table>
         <tr>
             <th>Name</th>
-            <th> Height</th>
-            <th>Towns</th>
+            <th>Hand</th>
+            <th>count</th>
         </tr>
 
 
-        % for mountain in mount %}
+        {% for player in table %}
         <tr>
-        <td>{{user.}}</td>
+        <td>{{player.}}</td>
         <td>{{mountain.height}}</td>
         <td>{{mountain.town}}</td>
         <td><a href="/update/{{mountain.id}}">Update</a></td>
@@ -21,5 +22,8 @@
         </tr>
         {% endfor %}
 
-    </table>-->
+    </table>
+    </body>
+
+
     {% endblock %}

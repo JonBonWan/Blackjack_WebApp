@@ -12,18 +12,16 @@ login_manager = LoginManager(app)
 login_manager.init_app(app)
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(40), nullable=False)
-    name = db.Column(db.String(40), nullable=False)
-    Account_id = db.Column(db.Integer)
-    Active = db.Column(db.Boolean)
-    Account_Bal = db.Column(db.Float)
+    balance = db.Column(db.Integer, nullable=True)
+    active = db.Column(db.Boolean)
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'))
 
 
-class Player(db.Model, UserMixin):
+class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(40), unique=True, nullable=False)
     Hand_id = db.relationship('Hand', backref='player')
@@ -42,6 +40,7 @@ class Table(db.Model):
 class Dealer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Table_id = db.Column(db.Integer, db.ForeignKey('table.id'))
+    hand_id = db.relationship('Hand', backref='dealer', uselist=False)
     Deck_id = db.relationship('Deck', backref='dealer')
     Player_id = db.relationship('Player', backref='dealer')
 
@@ -49,6 +48,7 @@ class Dealer(db.Model):
 class Hand(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Player_id = db.Column(db.Integer, db.ForeignKey('player.id'))
+    dealer_id = db.Column(db.Integer, db.ForeignKey('dealer.id'))
     Card_id = db.relationship('Card', backref='hand')
     Card_total = db.Column(db.Integer)
 
@@ -79,16 +79,11 @@ def home():
 
 
 @app.route('/account', methods=['GET', 'POST'])
+@login_required
 def account():
-    #if request.method == 'POST':
-    #    n = request.form['name']
-    #    h = request.form['height']
-    #    t = request.form['town']
-    #    mountain = Mountains(name=n, height=h, town=t, user=current_user)
-    #    db.session.add(mountain)
-    #    db.session.commit()
-    #    return redirect('/Game')
-    return render_template('Account.html')
+    key = current_user
+    profile = Player.query.filter_by(user_id=key.id).all()
+    return render_template('account.html', profile=profile, key=key, player=Player)
 
 
 @login_manager.user_loader
@@ -97,55 +92,33 @@ def load_user(uid):
     return user
 
 
-#@app.route('/update/<id>', methods=['GET', 'POST'])
-#def update(id):
-  #  mountain = Mountains.query.get(id)
- #   if request.method == 'POST':
- #       mountain.height = request.form['height']
- #       mountain.town = request.form['town']
- #       db.session.commit()
- #      return redirect('/userMoutains')
- #   return render_template('update.html', mountain=mountain)
-
-
-#@app.route('/delete/<id>')
-#def delete(id):
-  #  mountain = Mountains.query.get(id)
-  #  db.session.delete(mountain)
-  #  db.session.commit()
-   # return redirect('/userMoutains')
-
-
 @app.route('/newUser', methods=['GET', 'POST'])
 def newUser():
     if request.method == 'POST':
-        u = request.form['username']
-        p = request.form['password']
-        n = request.form['name']
-        user = User.query.filter_by(username=u).first()
-        if user == None:
-            newuser = User(username=u, password=p, name=n)
-            db.session.add(newuser)
-            db.session.commit()
-            login_user(newuser)
-            return redirect('/create')
-        if user != None:
-            return render_template('Login.html')
+        username = request.form["username"]
+        password = request.form["password"]
+        balance = int(request.form["balance"])
+        active = True
+        user = User(username=username, password=password, balance=balance, active=active)
+        print(user)
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        return redirect('/')
     return render_template('newUser.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
-        if user != None:
-            if password == user.password:
-                login_user(user)
-                return redirect('/Game')
-                #return 'SUCCESS'
-        return render_template('Login.html', notuser='Username or password was incorrect.')
+        user = User.query.filter_by(username=request.form['username']).first()
+        if user is None:
+            return render_template('Login.html')
+        else:
+            user.active=True
+            db.session.commit()
+            login_user(user)
+            return redirect('/account')
     return render_template('Login.html')
 
 
@@ -159,8 +132,10 @@ def logout():
 @app.route('/Game')
 @login_required
 def Game():
-    #   mountains = Mountains.query.filter_by(user=current_user)
-    return render_template('Game.html')
+    dealer = Table.Dealer_id
+    player = Table.Player_id
+    hand = Hand.Card_id
+    return render_template('Game.html', table=player, hand=hand, dealer=dealer)
 
 
 @app.errorhandler(404)
