@@ -1,4 +1,4 @@
-from app import db, User, Card, Deck
+from app import db, Card
 
 
 card = Card(suit='AS', value=1)
