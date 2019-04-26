@@ -3,11 +3,7 @@
    {% block content %}
 
 
-   <script>
-     function disableBtn(){
-       document.getElementById("PlaceBetButton").disabled = true;
-     }
-   </script>
+
 
     <table>
         <tr>
@@ -20,22 +16,13 @@
 
              <td>Dealer</td>
              <td></td>
-             <td><p id="dealerTwo"></p>
+             <td><p ><span id="dealerCard1"></span><span id="dealerCard2" hidden></span></p>
                 <script>
-                    function dealerTwo() {
-                        var xhttp = new XMLHttpRequest();
-                        xhttp.onreadystatechange = function () {
-                            if(this.readyState === 4 && this.status === 200){
-                                var txt = this.responseText;
-                                document.getElementById('dealerTwo').innerText = txt;
-                            }
-                        };
-                        xhttp.open("GET", '/startingHand/{{dealer.id}}', true);
-                        xhttp.send();
-                    }
+
                 </script>
              </td>
-             <td></td>
+             <td>
+                 <p id="dealerHit"></p></td>
         </tr>
         {% for i in lst %}
 
@@ -43,16 +30,17 @@
 
 <!--------- username--------------------------
   -->
-        <td>{{ i.username }}</td>
+        <td>{{ i.Name }}</td>
 
 
 <!--------- place bet button----------------------
   -->
 
         <td>
-        <form action="/startingHand/{{i.id}}" method="get">
-        <input type="number" name="bet" min="1" max={{ i.balance }}>
-        <input type="button" onclick="getTwo(); disableBtn(); dealerTwo();" value="Place Bet" id="PlaceBetButton"></button>
+        <form action="/bet" method="post">
+        <input type="number" name="Bet" min="1" max={{i.account}} id="bet">
+        <input type="button" onclick="getTwo(); dealerTwo(); disableBtn(); setTimeout(function() { showTotal(0); }, 3000); enable();  sendBet();" value="Place Bet" id="PlaceBetButton">
+            <!--<input type="submit">-->
         </form>
         </td>
 
@@ -62,26 +50,22 @@
   -->
 
         <td>
-          <p id="getTwo"></p>
-          <script>
-              function getTwo() {
-                  var xhttp = new XMLHttpRequest();
-                  xhttp.onreadystatechange = function () {
-                      if(this.readyState === 4 && this.status === 200){
-                        var txt = this.responseText;
-                        document.getElementById('getTwo').innerText = txt;
-                      }
-                  };
-                  xhttp.open("GET", '/startingHand/{{i.id}}', true);
-                  xhttp.send();
-              }
-          </script>
+            <p><span id="getCard1"></span> <span id="hand2getCard1"></span> </p>
+            <p><span id="getCard2"></span> <span id="hand2getCard2"></span></p>
+            <p id="hit"></p>
+            <p id="double"></p>
+
         </td>
+
 
 <!--------- showing total value of starting hand----------------
   -->
 
+
         <td>
+            <p id="getTotal"></p>
+            <p id="getTotal2"></p>
+
         </td>
 
 
@@ -89,35 +73,191 @@
 <!--------- taking one more card-------------------------
   -->
         <td>
-          <button onclick="hit();">Hit</button> <p id="hit"></p>
+          <button type="button" onclick="hit(0);setTimeout(function() { showTotal(0); }, 1000);" disabled id="hits">Hit</button>
+          <button type="button" onclick="hit(1);setTimeout(function() { showTotal2(1); }, 1000);" disabled id="hit2" hidden>Hit</button>
+
         </td>
-          <script>
-              function hit() {
-                  var xhttp = new XMLHttpRequest();
-                  xhttp.onreadystatechange = function () {
-                      if(this.readyState === 4 && this.status === 200){
-                          var txt = this.responseText;
-                          document.getElementById('hit').innerText = txt;
-                      }
-                  };
-                  xhttp.open("GET", '/getCard', true);
-                  xhttp.send();
-              }
-          </script>
 
+         <td>
+          <button id = "stan" onclick="stand();" disabled>Stand</button>
+          <button id = "stan2" onclick="stand();" disabled hidden>Stand</button>
+        </td>
 
-
-
-
-
-        <td><a href="/stand/{{i.id}}">Stand</a></td>
-        <td><a href="/stand/{{i.id}}">Double</a></td>
-        <td><a href="/stand/{{i.id}}">Split</a></td>
+        <td><button id="doub" onclick="double(); setTimeout(function() { showTotal(0); }, 1000); setTimeout(function() { dealerHit(); }, 750); setTimeout(function() { finishGame(); }, 1000); " disabled>Double</button></td>
+        <td><button id="spil" onclick="split(); setTimeout(function() { showTotal(0); }, 2000); setTimeout(function() { showTotal2(1); }, 3000);  " disabled>Split</button></td>
         <td>Bet Timer</td>
         </tr>
+        <script>
+            var handsdelt = 1;
+            var standhands = 0;
+        function disableBtn(){
+            document.getElementById("PlaceBetButton").disabled = true;
+        }
+        function disableAllBtn() {
+        document.getElementById("PlaceBetButton").disabled = true;
+
+        }
+
+     function dealerTwo() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if(this.readyState === 4 && this.status === 200){
+                var txt = JSON.parse(xhttp.responseText);
+                document.getElementById("dealerCard1").innerText = txt.card1;
+                document.getElementById("dealerCard2").innerText = txt.card2;
+            }
+        };
+        xhttp.open("GET", '/startingHand/{{dealer.id}}', true);
+        xhttp.send();
+     }
+
+      function getTwo() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                var txt = JSON.parse(xhttp.responseText);
+                document.getElementById("getCard1").innerText = txt.card1;
+                document.getElementById("getCard2").innerText = txt.card2;
+                var handid = parseInt(txt.handid);
+              }
+          };
+          xhttp.open("GET", '/startingHand/{{i.id}}', true);
+          xhttp.send();
+      }
+      function enable() {
+          document.getElementById("doub").disabled = false;
+          document.getElementById("hits").disabled = false;
+          document.getElementById("stan").disabled = false;
+          document.getElementById("spil").disabled = false;
+      }
+      function split() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                var txt = JSON.parse(xhttp.responseText);
+                document.getElementById("hand2getCard1").innerText = txt.card1;
+                document.getElementById("hand2getCard2").innerText = txt.card2;
+                document.getElementById("total2").innerText = txt.total2;
+              }
+          };
+          document.getElementById("hit2").disabled = false;
+          document.getElementById("stan2").disabled = false;
+          document.getElementById("spil").disabled = true;
+          document.getElementById("doub").disabled = true;
+          stan2.style.display = "block";
+          hit2.style.display = "block";
+          handsdelt=2;
+          xhttp.open("GET", '/splitHand/{{i.id}}', true);
+          xhttp.send();
+      }
+
+      function showTotal(key) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                var txt = this.responseText;
+                document.getElementById('getTotal').innerText = txt;
+              }
+          };
+          xhttp.open("GET", '/getTotal/{{i.id}}' + ',' + key, true);
+          xhttp.send();
+      }
+
+      function showTotal2(key) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                var txt = this.responseText;
+                document.getElementById('getTotal2').innerText = txt;
+              }
+          };
+          xhttp.open("GET", '/getTotal/{{i.id}}' + ',' + key, true);
+          xhttp.send();
+      }
+
+      function hit(key) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                   var txt = JSON.parse(xhttp.responseText);
+                  document.getElementById('hit').innerText = txt.card;
+              }
+          };
+          document.getElementById("doub").disabled = true;
+          document.getElementById("spil").disabled = true;
+          xhttp.open("GET", '/getCard/{{i.id}}'+ ',' + key, true);
+          xhttp.send();
+      }
+      function dealerHit() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                   var txt = JSON.parse(xhttp.responseText);
+                  document.getElementById('dealerHit').innerText = txt;
+              }
+          };
+          dealerCard2.style.display = "block";
+          xhttp.open("GET", '/dealerHit/{{dealer.id}}', true);
+          xhttp.send();
+
+      }
+
+      function sendBet(){
+          var xhttp = new XMLHttpRequest();
+          var bet = document.getElementById('bet').value;
+          xhttp.open("GET", '/bet/' + bet, true);
+          xhttp.send();
+      }
+
+      function stand(){
+            standhands++;
+            if(standhands == handsdelt){
+                dealerHit();
+                setTimeout(function() { finishGame(); }, 1000);
+            }
+            if(handsdelt == 1){
+                document.getElementById("hits").disabled = true;
+                document.getElementById("doub").disabled = true;
+                document.getElementById("stan").disabled = true;
+                document.getElementById("spil").disabled = true;
+
+            }
+            if(handsdelt == 2){
+                document.getElementById("hit2").disabled = true;
+                document.getElementById("stan2").disabled = true;
+            }
+      }
+       function finishGame() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                   var txt = this.responseText;
+                  document.getElementById('gameOver').innerText = txt;
+              }
+          };
+
+          xhttp.open("GET", '/stand/{{i.id}}'+','+'{{dealer.id}}', true);
+          xhttp.send();
+      }
+
+      function double() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+              if(this.readyState === 4 && this.status === 200){
+                   var txt = JSON.parse(xhttp.responseText);
+                  document.getElementById('double').innerText = txt.hand;
+              }
+          };
+          document.getElementById("hits").disabled = true;
+          document.getElementById("doub").disabled = true;
+          document.getElementById("stan").disabled = true;
+          xhttp.open("GET", '/double/{{i.id}}', true);
+          xhttp.send();
+      }
+    </script>
 
         {% endfor %}
 
     </table>
-
+   <p id="gameOver"></p>
    {% endblock %}
