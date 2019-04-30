@@ -118,7 +118,7 @@
                 var txt = JSON.parse(xhttp.responseText);
                 document.getElementById("getCard1").innerText = txt.card1;
                 document.getElementById("getCard2").innerText = txt.card2;
-                var handid = parseInt(txt.handid);
+                world.doub = txt.doub
               }
           };
           xhttp.open("GET", '/startingHand/{{i.id}}', true);

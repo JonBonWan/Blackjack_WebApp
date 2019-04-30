@@ -284,6 +284,7 @@ def Game():
 @app.route('/startingHand/<key>', methods=['GET', 'POST'])
 @login_required
 def startingHand(key):
+    doub = False
     pl = Player.query.filter_by(id=key).first()
     hand = Hand(Player_id=pl.id)
     db.session.add(hand)
@@ -296,9 +297,11 @@ def startingHand(key):
     second = random.choice(cards)
     second.hand_id = hand.id
     hand.Card_total = first.value + second.value
+    if first > 8:
+        doub = True
     db.session.commit()
     # placeBet()
-    return jsonify({"player": key, "card1": [first.face+''+first.suit],  "card2": [second.face+''+second.suit], "handid": hand.id})
+    return jsonify({"player": key, "card1": [first.face+''+first.suit], "card2": [second.face+''+second.suit], "doub": doub})
 
 
 @app.route('/splitHand/<key>', methods=['GET', 'POST'])
